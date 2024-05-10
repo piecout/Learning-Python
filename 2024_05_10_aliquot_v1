@@ -1,0 +1,179 @@
+# -*- coding: utf-8 -*-
+"""
+Created on %(2024-05-10)
+
+@author: %(Pierre)
+inspired by numberphile video :
+https://youtu.be/OtYKDzXwDEE?si=zHTfmyc5UdvXmZ7p
+
+"""
+
+
+    
+import numpy as np
+from functools import reduce
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
+import matplotlib.ticker as mticker
+
+def factors(n):    #I found and tested this function, but I need to spend the time to sit down and make my own inefficient way to do it
+   return set(reduce(list.__add__, 
+                ([i, n//i] for i in range(1, int(n**0.5) + 1) if n % i == 0)))
+
+def aliquot(n):    
+    return sum(factors(n))-n
+
+
+#test with 25
+'''
+print("factors(25)")
+print(factors(25))
+print("aliquot(25)")
+print(aliquot(25))
+'''
+
+
+
+lehmer_1=276#or 306
+lehmer_2=552
+lehmer_3=564
+lehmer_4=660
+lehmer_5=840
+lehmer_6=966
+list_lehmer = [lehmer_1,lehmer_2,lehmer_3,lehmer_4,lehmer_5,lehmer_6] 
+
+print("list_lehmer_six:")
+print(list_lehmer)
+  
+starting_number=lehmer_4#no convergance has been found yet
+#starting_number=25#goes to perfect number 6
+#starting_number=14#goes to prime number 7 than goes to one
+#starting_number=220#amicable pair goes to 284 than back to 220
+#starting_number=18
+#starting_number=95#inspiring number
+#starting_number=30#intresting deficiant number number
+#starting_number=138#intresting deficiant number number
+#starting_number=980460#intresting amicable pair
+starting_number=2856 #intresting cycle 28 iterations long
+#starting_number=306 #goes to lehmor number
+
+
+number=starting_number
+print("The starting number is "+str(number))
+
+array_aliquot = [number]     
+    
+i = 0
+i_min=0
+i_max=180#      The maximum number of iterations (if the series converges or diverges the maximum will change to the current number of iterations)
+if starting_number == lehmer_1 or starting_number == lehmer_2 or starting_number == lehmer_3 or starting_number == lehmer_4 or starting_number == lehmer_6:
+    #i_max=70#   No longer needed;Smaller iterrations for known cases that take a very long time to compute
+    print("This is going to take a hot min as the starting number is one of the Lehmor six")
+if starting_number == lehmer_5: 
+  #  i_max=40#   No longer needed;Smaller iterrations for known cases that take a very long time to compute
+    print("This is going to take a extra hot min as the starting number is the worst of the Lehmor six")    
+if starting_number == 306: 
+    print("This is going to take a hot min as the series is similair to one with starting number is one of the Lehmor six")    
+  #  i_max =70# No longer needed;Smaller iterrations for known cases that take a very long time to compute
+if starting_number == 220: 
+    i_max =20#  Special case hard coded
+
+
+i = i_min
+k=0
+k_min=0
+k_max=6#    After 6 perfect numbers in a row the code should stop
+diverge=0#  A more elagant way would be to use break instead
+
+while i < i_max and k< 6 and number > 1 and diverge==0: 
+    number=aliquot(number)
+    array_aliquot.append(number) 
+    i += 1
+    if number > 10**13:#    Cut it short if the value is too big
+        diverge+=1
+    if number==aliquot(number):
+        k+=1#       you dont want perfect numbers forever
+else:
+    if i == i_max:
+        print("The while loop ran out of iterations, here is the result:")
+    if k == k_max:#     A few perfect number in a row then stop
+        print("The series starting with " + str(starting_number) + " reached a perfect number, here is the result:")
+        i_max=i
+    if diverge != 0:#     Dont diverge
+        print("The series starting with " + str(starting_number) + " reached a big number here is the result:")
+        i_max=i
+    if number == 1:
+        print("The series starting with " + str(starting_number) + "  reached a prime number and then 1, here is the result:")           
+        i_max=i
+
+print(array_aliquot)
+
+
+
+
+# Create a NumPy array
+x = np.arange(0, 1+(i_max-i_min))
+
+
+#print(x)
+log=0
+if max(array_aliquot) > 300:#                   comment out if I want a non log plot
+    log=1       #                   comment out if I want a non log plot
+
+
+
+if log == 1:
+    y = np.log10(array_aliquot)       
+else:
+    y = array_aliquot             
+
+
+
+
+
+#ax = plt.figure().gca()
+#ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+#ax = plt.figure().gca#                                 This does nothing on its own un coment out one the the next lines
+#ax.xaxis.set_major_locator(MaxNLocator(integer=True))# This is not working as starting value of 25 gives non integer x values
+#ax.set_xticklabels(ax.get_xticks().astype(int))#        This is not working using lehmer_5 breaks the x axis
+#if i_max < 30: 
+ #   plt.xticks(range(i_min,i_max))
+if log != 1:#                   non log polts should have integers on y axis         
+    ay = plt.figure().gca()
+    ay.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+
+
+
+
+
+#           The following block is if you want it to end sudenly at a perfect number and you also dont want non integers
+if i_max < 30:
+    plt.ticklabel_format(style='plain', axis='x', useOffset=False)
+# plt.plot(range(1, 3), logger.acc)
+    plt.gca().xaxis.set_major_locator(mticker.MultipleLocator(1))
+# plt.xlabel("Epochs")
+# plt.ylabel("Accuracy")
+# plt.show()
+
+#print(x)
+#print(y)
+# Create a plot
+plt.plot(x, y, color="red")
+
+ # Add a title, labels, and other customizations
+plt.title("Aliquot series with starting number " + str(starting_number))
+plt.xlabel("Iterations")
+plt.ylabel("Value of aliquot series")
+
+
+if log == 1:
+    plt.ylabel("Log_10 of the value of aliquot series")   
+else:
+    plt.ylabel("The value of aliquot series")
+
+
+
+
+  
+
