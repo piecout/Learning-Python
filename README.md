@@ -1,4 +1,7 @@
 # Learning-Python
+
+So far I added one python code here is what I have to say about it :
+
 This is my first Python code, I am coming from MATLAB, Maple and LaTeX.
 
 This code is more complex than it needs to be, and I used someone's code to find the proper factors (I did test it).
